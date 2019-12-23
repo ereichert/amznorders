@@ -14,7 +14,7 @@ export default class OrderParsingServices {
 
   static fromCSV = (csvOrders: string): Array<Order> => {
     const parsedOrders = Papa.parse(csvOrders);
-    parsedOrders.data.shift();
+    parsedOrders.data.shift(); // remove the headers
     return parsedOrders.data.map(order => new Order(
       order[OrderParsingServices.ORDER_DATE_IDX],
       order[OrderParsingServices.ORDER_ID_IDX],
