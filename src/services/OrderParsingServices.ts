@@ -1,7 +1,22 @@
 import Papa from 'papaparse';
 import Order from '@/models/Order';
 
-export default class OrderParsingServices {
+export class ParsingResult {
+  orders: Array<Order> = [];
+
+  errors: Array<string> = [];
+
+  constructor(orders: Array<Order>, errors: Array<string> = []) {
+    this.orders = orders;
+    this.errors = errors;
+  }
+
+  hasErrors(): boolean {
+    return this.errors.length !== 0;
+  }
+}
+
+export class OrderParsingServices {
   private static readonly ORDER_DATE_IDX = 0;
 
   private static readonly ORDER_ID_IDX = 1;
@@ -12,15 +27,24 @@ export default class OrderParsingServices {
 
   private static readonly TOTAL_CHARGED_IDX = 20;
 
-  static fromCSV = (csvOrders: string): Array<Order> => {
+  static fromCSV = (csvOrders: string): ParsingResult => {
     const parsedOrders = Papa.parse(csvOrders);
-    parsedOrders.data.shift(); // remove the headers
-    return parsedOrders.data.map(order => new Order(
-      order[OrderParsingServices.ORDER_DATE_IDX],
-      order[OrderParsingServices.ORDER_ID_IDX],
-      order[OrderParsingServices.PAYMENT_INSTRUMENT_TYPE_IDX],
-      order[OrderParsingServices.SHIPMENT_DATE_IDX],
-      order[OrderParsingServices.TOTAL_CHARGED_IDX],
-    ));
+    let parsingResult: ParsingResult;
+    if (parsedOrders.errors.length === 0) {
+      parsedOrders.data.shift(); // remove the headers
+      const orders = parsedOrders.data.map(order => new Order(
+        order[OrderParsingServices.ORDER_DATE_IDX],
+        order[OrderParsingServices.ORDER_ID_IDX],
+        order[OrderParsingServices.PAYMENT_INSTRUMENT_TYPE_IDX],
+        order[OrderParsingServices.SHIPMENT_DATE_IDX],
+        order[OrderParsingServices.TOTAL_CHARGED_IDX],
+      ));
+
+      parsingResult = new ParsingResult(orders);
+    } else {
+      const errorMessages = parsedOrders.errors.map(error => error.message);
+      parsingResult = new ParsingResult([], errorMessages);
+    }
+    return parsingResult;
   };
 }
