@@ -19,3 +19,10 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+src/*.js
+src/*.js.map
+tests/*.js
+tests/*.js.map
+testdata/*.js
+testdata/*.js.map
