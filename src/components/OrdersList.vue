@@ -8,6 +8,7 @@
         @keyup="searchOrders"
         v-model="searchInput"
         placeholder="Search params"
+        v-hotkeybinding.focus="'g s'"
       />
     </div>
     <div id="order-list">
@@ -31,8 +32,11 @@ import {
   Component, Emit, Prop, Vue,
 } from 'vue-property-decorator';
 import Order from '../models/Order';
+import { hotkeybinding } from '@/directives/HotkeyBindings';
 
-@Component
+@Component({
+  directives: { hotkeybinding },
+})
 export default class OrderList extends Vue {
   @Prop({ default: [] })
   private orderList!: Array<Order>;
